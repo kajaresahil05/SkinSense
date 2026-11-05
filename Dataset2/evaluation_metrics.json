@@ -1,0 +1,91 @@
+{
+  "dataset_info": {
+    "name": "Dataset2 validation split",
+    "split": "validation",
+    "total_samples": 181
+  },
+  "overall_metrics": {
+    "accuracy": 0.767956,
+    "precision": 0.792,
+    "recall": 0.7669,
+    "f1_score": 0.767109,
+    "weighted_precision": 0.7926,
+    "weighted_recall": 0.768,
+    "weighted_f1_score": 0.76801,
+    "validation_loss": 0.67991
+  },
+  "per_class_metrics": [
+    {
+      "code": "akiec",
+      "name": "Actinic keratosis",
+      "precision": 0.8,
+      "recall": 0.4,
+      "f1_score": 0.5333,
+      "support": 20
+    },
+    {
+      "code": "eczema",
+      "name": "Atopic Dermatitis",
+      "precision": 0.9091,
+      "recall": 0.9524,
+      "f1_score": 0.9302,
+      "support": 21
+    },
+    {
+      "code": "bkl",
+      "name": "Benign keratosis",
+      "precision": 0.85,
+      "recall": 0.85,
+      "f1_score": 0.85,
+      "support": 20
+    },
+    {
+      "code": "df",
+      "name": "Dermatofibroma",
+      "precision": 0.6842,
+      "recall": 0.65,
+      "f1_score": 0.6667,
+      "support": 20
+    },
+    {
+      "code": "nv",
+      "name": "Melanocytic nevus",
+      "precision": 0.875,
+      "recall": 0.7,
+      "f1_score": 0.7778,
+      "support": 20
+    },
+    {
+      "code": "mel",
+      "name": "Melanoma",
+      "precision": 0.5909,
+      "recall": 0.65,
+      "f1_score": 0.619,
+      "support": 20
+    },
+    {
+      "code": "scc",
+      "name": "Squamous cell carcinoma",
+      "precision": 0.4688,
+      "recall": 0.75,
+      "f1_score": 0.5769,
+      "support": 20
+    },
+    {
+      "code": "tinea",
+      "name": "Tinea Ringworm Candidiasis",
+      "precision": 0.95,
+      "recall": 0.95,
+      "f1_score": 0.95,
+      "support": 20
+    },
+    {
+      "code": "vasc",
+      "name": "Vascular lesion",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 20
+    }
+  ]
+}

@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkinSense — Intelligent Dermatological Assessment System</title>
+  <meta name="description" content="AI-powered skin disease assessment platform. Upload a skin photo for an intelligent, explainable analysis with patient-friendly guidance.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5, FontAwesome, Chart.js -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- SkinSense Design System -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     TOAST CONTAINER
+     ══════════════════════════════════════════ -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- ══════════════════════════════════════════
+     1. AUTH SCREEN
+     ══════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <!-- Logo -->
+    <div class="text-center mb-4">
+      <div class="auth-logo-ring">
+        <i class="fa-solid fa-hand-holding-medical"></i>
+      </div>
+      <div class="auth-brand-title">SkinSense</div>
+      <p class="text-muted small mt-1 mb-0">Intelligent Dermatological Assessment</p>
+    </div>
+
+    <!-- Tabs: Login | Register -->
+    <div class="auth-tab-pills mb-0" id="auth-tabs" role="tablist">
+      <button class="auth-tab-pill active" data-tab="login-pane" id="tab-login" aria-selected="true">Sign In</button>
+      <button class="auth-tab-pill" data-tab="register-pane" id="tab-register" aria-selected="false">Register</button>
+      <button class="auth-tab-pill" data-tab="admin-pane" id="tab-admin" aria-selected="false">Admin</button>
+    </div>
+
+    <!-- ── LOGIN PANE ── -->
+    <div id="login-pane" class="auth-pane mt-4">
+      <div class="alert-inline error d-none mb-3" id="login-error" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="login-error-msg">Invalid credentials.</span>
+      </div>
+      <div class="alert-inline warning d-none mb-3" id="login-lockout">
+        <i class="fa-solid fa-lock"></i>
+        <span id="login-lockout-msg">Account locked. Please wait.</span>
+      </div>
+      <form id="login-form" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="login-email">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+            <input type="email" id="login-email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label mb-0" for="login-password">Password</label>
+            <a href="#" class="small text-teal fw-600" id="forgot-password-link">Forgot password?</a>
+          </div>
+          <div class="input-group mt-1">
+            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            <button class="btn btn-secondary btn-sm" type="button" id="toggle-login-pw">
+              <i class="fa-solid fa-eye" id="login-pw-icon"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 btn-lg" id="login-submit-btn">
+          <i class="fa-solid fa-right-to-bracket me-2"></i>Sign In to SkinSense
+        </button>
+      </form>
+    </div>
+
+    <!-- ── FORGOT PASSWORD PANE ── -->
+    <div id="forgot-pane" class="auth-pane d-none mt-4">
+      <button class="btn btn-ghost btn-sm mb-3 px-0" id="back-to-login-btn">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Sign In
+      </button>
+      <h6 class="fw-700 mb-1">Reset Your Password</h6>
+      <p class="text-muted small mb-3">Enter your email address and we'll generate a reset token.</p>
+      <div class="alert-inline success d-none mb-3" id="forgot-success">
+        <i class="fa-solid fa-circle-check"></i>
+        <div>
+          <div class="fw-600">Reset token generated</div>
+          <div id="forgot-token-display" class="mt-1" style="font-family:monospace; font-size:0.8rem; word-break:break-all;"></div>
+          <div class="mt-1 small">Copy this token and use it below to reset your password.</div>
+        </div>
+      </div>
+      <form id="forgot-form" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="forgot-email">Email Address</label>
+          <input type="email" id="forgot-email" class="form-control" placeholder="you@example.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100" id="forgot-submit-btn">
+          <i class="fa-solid fa-key me-2"></i>Generate Reset Token
+        </button>
+      </form>
+      <!-- Reset form (shown after token) -->
+      <div id="reset-form-container" class="d-none mt-4 border-top pt-4">
+        <h6 class="fw-700 mb-3">Set New Password</h6>
+        <form id="reset-form" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="reset-token-input">Reset Token</label>
+            <input type="text" id="reset-token-input" class="form-control" placeholder="Paste token here" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="reset-new-pw">New Password</label>
+            <input type="password" id="reset-new-pw" class="form-control" placeholder="Minimum 8 characters" required>
+            <div class="pw-strength-bar mt-2"><div class="pw-strength-fill" id="reset-pw-fill" style="width:0%"></div></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="reset-confirm-pw">Confirm Password</label>
+            <input type="password" id="reset-confirm-pw" class="form-control" placeholder="Re-enter password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fa-solid fa-shield-halved me-2"></i>Reset Password
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── REGISTER PANE ── -->
+    <div id="register-pane" class="auth-pane d-none mt-4">
+      <div class="alert-inline error d-none mb-3" id="register-error" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="register-error-msg">Registration failed.</span>
+      </div>
+      <form id="register-form" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="reg-fullname">Full Name</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+            <input type="text" id="reg-fullname" class="form-control" placeholder="Jane Doe" required autocomplete="name">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="reg-email">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+            <input type="email" id="reg-email" class="form-control" placeholder="jane@example.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label" for="reg-password">Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            <input type="password" id="reg-password" class="form-control" placeholder="At least 8 characters" required autocomplete="new-password">
+            <button class="btn btn-secondary btn-sm" type="button" id="toggle-reg-pw">
+              <i class="fa-solid fa-eye" id="reg-pw-icon"></i>
+            </button>
+          </div>
+          <div class="pw-strength-bar mt-2"><div class="pw-strength-fill" id="reg-pw-fill" style="width:0%"></div></div>
+          <div class="small mt-1" id="reg-pw-label" style="color:var(--text-muted)"></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="reg-confirm">Confirm Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-shield-halved"></i></span>
+            <input type="password" id="reg-confirm" class="form-control" placeholder="Re-enter password" required autocomplete="new-password">
+          </div>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="reg-consent" required>
+          <label class="form-check-label small text-muted" for="reg-consent">
+            I accept the <a href="#" class="text-teal fw-600">Privacy Policy</a> and understand that AI assessments do not replace medical diagnosis.
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 btn-lg" id="reg-submit-btn">
+          <i class="fa-solid fa-user-plus me-2"></i>Create My Account
+        </button>
+      </form>
+    </div>
+
+    <!-- ── ADMIN PANE ── -->
+    <div id="admin-pane" class="auth-pane d-none mt-4">
+      <div class="alert-inline warning mb-3">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="small">This area is restricted to authorized administrators only.</span>
+      </div>
+      <div class="alert-inline error d-none mb-3" id="admin-login-error" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="admin-login-error-msg">Invalid admin credentials.</span>
+      </div>
+      <form id="admin-login-form" novalidate>
+        <div class="mb-3">
+          <label class="form-label" for="admin-email">Administrator Email</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-user-gear"></i></span>
+            <input type="email" id="admin-email" class="form-control" placeholder="admin@skinsense.org" required>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="admin-password">Administrator Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
+            <input type="password" id="admin-password" class="form-control" placeholder="••••••••" required>
+          </div>
+        </div>
+        <button type="submit" class="btn w-100 btn-lg fw-700" style="background:#0f172a;color:#fff;" id="admin-submit-btn">
+          <i class="fa-solid fa-shield-cat me-2"></i>Authenticate as Admin
+        </button>
+      </form>
+    </div>
+
+    <!-- Footer disclaimer -->
+    <p class="text-muted text-center mt-4 mb-0" style="font-size:0.72rem; line-height:1.5;">
+      <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+      SkinSense provides AI-assisted assessment for educational purposes only.
+      Always consult a certified dermatologist for medical diagnosis.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     2. APP SHELL (shown after login)
+     ══════════════════════════════════════════ -->
+<div id="app-shell" class="d-none">
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="app-sidebar" role="navigation" aria-label="Main Navigation">
+
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">
+          <i class="fa-solid fa-hand-holding-medical"></i>
+        </div>
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">SkinSense</div>
+          <div class="sidebar-brand-sub">Derma AI Platform</div>
+        </div>
+      </div>
+      <button class="sidebar-toggle-btn d-none d-lg-flex" id="desktop-sidebar-toggle" title="Collapse sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Patient Navigation -->
+    <nav class="sidebar-nav" id="patient-nav">
+
+      <!-- PATIENT section -->
+      <div class="sidebar-section-label" id="patient-nav-section" data-i18n="nav_section_patient">Patient</div>
+
+      <button class="sidebar-nav-item active" data-page="dashboard" id="nav-dashboard">
+        <span class="nav-icon"><i class="fa-solid fa-house-medical"></i></span>
+        <span class="nav-label" data-i18n="nav_dashboard">Dashboard</span>
+      </button>
+
+      <button class="sidebar-nav-item" data-page="scanner" id="nav-scanner">
+        <span class="nav-icon"><i class="fa-solid fa-camera-retro"></i></span>
+        <span class="nav-label" data-i18n="nav_scanner">Skin Scanner</span>
+      </button>
+
+      <button class="sidebar-nav-item" data-page="history" id="nav-history">
+        <span class="nav-icon"><i class="fa-solid fa-file-medical"></i></span>
+        <span class="nav-label" data-i18n="nav_history">My Reports</span>
+      </button>
+
+      <button class="sidebar-nav-item" data-page="tracking" id="nav-tracking">
+        <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>
+        <span class="nav-label" data-i18n="nav_tracking">Lesion Tracking</span>
+      </button>
+
+      <!-- TOOLS section -->
+      <div class="sidebar-section-label" id="tools-nav-section" data-i18n="nav_section_tools">Tools</div>
+
+      <button class="sidebar-nav-item" data-page="assistant" id="nav-assistant">
+        <span class="nav-icon"><i class="fa-solid fa-user-doctor"></i></span>
+        <span class="nav-label" data-i18n="nav_assistant">AI Assistant</span>
+      </button>
+
+      <button class="sidebar-nav-item" data-page="education" id="nav-education">
+        <span class="nav-icon"><i class="fa-solid fa-book-medical"></i></span>
+        <span class="nav-label" data-i18n="nav_education">Skin Education</span>
+      </button>
+
+      <!-- ACCOUNT section -->
+      <div class="sidebar-section-label" id="account-nav-section" data-i18n="nav_section_account">Account</div>
+
+      <button class="sidebar-nav-item" data-page="profile" id="nav-profile">
+        <span class="nav-icon"><i class="fa-solid fa-circle-user"></i></span>
+        <span class="nav-label" data-i18n="nav_profile">My Profile</span>
+      </button>
+
+      <!-- ADMIN section (hidden by default, shown for admin role) -->
+      <div class="sidebar-section-label d-none" id="admin-nav-section" data-i18n="nav_section_admin">Admin</div>
+
+      <button class="sidebar-nav-item d-none" data-page="admin-dashboard" id="nav-admin-dashboard">
+        <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>
+        <span class="nav-label" data-i18n="nav_admin_dashboard">Admin Dashboard</span>
+      </button>
+
+      <button class="sidebar-nav-item d-none" data-page="admin-users" id="nav-admin-users">
+        <span class="nav-icon"><i class="fa-solid fa-users-gear"></i></span>
+        <span class="nav-label" data-i18n="nav_admin_users">User Management</span>
+      </button>
+
+      <button class="sidebar-nav-item d-none" data-page="admin-analytics" id="nav-admin-analytics">
+        <span class="nav-icon"><i class="fa-solid fa-chart-bar"></i></span>
+        <span class="nav-label" data-i18n="nav_admin_analytics">Model Analytics</span>
+      </button>
+
+      <button class="sidebar-nav-item d-none" data-page="admin-review" id="nav-admin-review">
+        <span class="nav-icon"><i class="fa-solid fa-stethoscope"></i></span>
+        <span class="nav-label" data-i18n="nav_review">Review Queue</span>
+        <span class="nav-badge d-none" id="review-queue-badge">0</span>
+      </button>
+
+      <button class="sidebar-nav-item d-none" data-page="admin-audit" id="nav-admin-audit">
+        <span class="nav-icon"><i class="fa-solid fa-shield-halved"></i></span>
+        <span class="nav-label" data-i18n="nav_audit">Audit Logs</span>
+      </button>
+
+      <button class="sidebar-nav-item d-none" data-page="admin-knowledge" id="nav-admin-knowledge">
+        <span class="nav-icon"><i class="fa-solid fa-book-medical"></i></span>
+        <span class="nav-label" data-i18n="nav_knowledge">Medical Content</span>
+      </button>
+
+    </nav>
+
+    <!-- Sidebar Footer: User card + Logout -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user-card" data-page="profile" id="sidebar-user-card">
+        <div class="sidebar-user-avatar" id="sidebar-avatar-initials">U</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-user-name">Loading…</div>
+          <div class="sidebar-user-role" id="sidebar-user-role">Patient</div>
+        </div>
+        <button class="btn-ghost btn px-1 py-0 ms-auto" id="logout-btn" title="Logout" onclick="event.stopPropagation()">
+          <i class="fa-solid fa-right-from-bracket" style="color:rgba(255,255,255,0.4); font-size:0.9rem;"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="main-content">
+
+    <!-- Top Header Bar -->
+    <header class="top-header" role="banner">
+      <div class="top-header-left">
+        <!-- Mobile hamburger -->
+        <button class="mobile-sidebar-btn" id="mobile-sidebar-btn" aria-label="Open navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Page breadcrumb -->
+        <div class="breadcrumb-nav">
+          <span class="text-muted small d-none d-md-inline">SkinSense</span>
+          <i class="fa-solid fa-chevron-right text-muted small d-none d-md-inline" style="font-size:0.65rem;"></i>
+          <span class="page-title" id="header-page-title">Dashboard</span>
+        </div>
+      </div>
+
+      <div class="top-header-right">
+        <!-- System status -->
+        <div class="system-status-pill d-none d-sm-flex" id="system-status-pill">
+          <span class="status-dot"></span>
+          <span id="system-status-text">System Ready</span>
+        </div>
+
+        <!-- Dark mode toggle -->
+        <button class="header-action-btn" id="theme-toggle-btn" title="Toggle dark mode" aria-label="Toggle theme">
+          <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+
+        <!-- Multilingual Selector -->
+        <div id="header-lang-container" class="ms-1"></div>
+
+        <!-- User avatar (mobile) -->
+        <div class="header-action-btn" style="cursor:default;" id="header-avatar" title="Profile">
+          <span style="font-size:0.75rem; font-weight:700; color:var(--teal-700);" id="header-initials">U</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══ PAGE CONTENT ═══ -->
+    <main class="page-content">
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: DASHBOARD              ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page active" id="page-dashboard">
+        <!-- Welcome Hero -->
+        <div class="card-hero p-4 p-md-5 mb-4" style="position:relative; overflow:hidden;">
+          <div class="row align-items-center g-4">
+            <div class="col-lg-8" style="position:relative;z-index:1;">
+              <span class="badge-pill badge-teal mb-3" style="background:rgba(255,255,255,0.18); color:#fff;" data-i18n="ai_assessment_badge">
+                <i class="fa-solid fa-shield-halved me-1"></i> Patient-Centered AI Assessment
+              </span>
+              <h1 class="display-5 fw-800 text-white mb-2" id="dashboard-welcome">
+                Good morning, <span id="welcome-name">there</span>! 👋
+              </h1>
+              <p class="mb-4" style="color:rgba(255,255,255,0.8); font-size:1.05rem;" data-i18n="hero_desc">
+                Ready for your skin health check? Upload a photo and get an AI-assisted assessment in seconds.
+              </p>
+              <div class="d-flex flex-wrap gap-3">
+                <button class="btn btn-lg fw-700" style="background:#fff; color:var(--teal-700);" data-page="scanner" onclick="navigateTo('scanner')" data-i18n="start_assessment">
+                  <i class="fa-solid fa-circle-play me-2"></i>Start New Assessment
+                </button>
+                <button class="btn btn-lg" style="background:rgba(255,255,255,0.15); color:#fff; border:1.5px solid rgba(255,255,255,0.3);" onclick="navigateTo('history')" data-i18n="my_reports">
+                  <i class="fa-solid fa-clock-rotate-left me-2"></i>My Reports
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Doctor Verdict Alert Banner (Injected by JS if doctor verdict exists) -->
+        <div id="dashboard-verdict-alert"></div>
+
+        <!-- Stats Strip -->
+        <div class="row g-3 mb-4" id="dashboard-stats">
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon teal"><i class="fa-solid fa-file-medical"></i></div>
+              <div>
+                <div class="stat-value" id="stat-total-scans">—</div>
+                <div class="stat-label" data-i18n="stat_total_scans">Total Scans</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon blue"><i class="fa-solid fa-calendar-check"></i></div>
+              <div>
+                <div class="stat-value" id="stat-last-scan">—</div>
+                <div class="stat-label" data-i18n="stat_last_scan">Last Assessment</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon emerald"><i class="fa-solid fa-chart-line"></i></div>
+              <div>
+                <div class="stat-value" id="stat-tracks">—</div>
+                <div class="stat-label" data-i18n="stat_active_tracks">Active Tracks</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon amber"><i class="fa-solid fa-stethoscope"></i></div>
+              <div>
+                <div class="stat-value" id="stat-review">—</div>
+                <div class="stat-label" data-i18n="stat_under_review">Under Review</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Scans + Skin Tips -->
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="section-header">
+              <div>
+                <h2 class="section-title" data-i18n="recent_scans">Recent Scans</h2>
+                <p class="section-subtitle" data-i18n="recent_scans_sub">Your latest skin assessments</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="navigateTo('history')" data-i18n="view_all">View All <i class="fa-solid fa-arrow-right ms-1"></i></button>
+            </div>
+            <div id="dashboard-recent-scans">
+              <!-- Skeleton -->
+              <div class="row g-3" id="recent-scans-skeleton">
+                <div class="col-md-4"><div class="skeleton skeleton-card"></div></div>
+                <div class="col-md-4"><div class="skeleton skeleton-card"></div></div>
+                <div class="col-md-4"><div class="skeleton skeleton-card"></div></div>
+              </div>
+              <!-- Content injected by JS -->
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="section-header">
+              <div>
+                <h2 class="section-title" data-i18n="skin_health_tips">Skin Health Tips</h2>
+                <p class="section-subtitle" data-i18n="daily_recommendations">Daily recommendations</p>
+              </div>
+            </div>
+            <div class="card p-0 overflow-hidden">
+              <div id="health-tips-list">
+                <!-- Tips injected by JS -->
+              </div>
+            </div>
+            <div class="card mt-3 p-4 bg-teal-soft border-teal">
+              <h6 class="fw-700 text-teal mb-2" data-i18n="quick_assistant"><i class="fa-solid fa-user-doctor me-2"></i>Quick Assistant</h6>
+              <p class="small text-muted mb-3" data-i18n="quick_assistant_sub">Have questions about your skin? Ask the AI Assistant.</p>
+              <button class="btn btn-primary w-100 btn-sm" onclick="navigateTo('assistant')" data-i18n="start_chat">
+                <i class="fa-solid fa-comments me-2"></i>Start Chat
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: SCANNER                ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-scanner">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-camera-retro text-teal me-2"></i>Skin Health Scanner</h2>
+            <p class="section-subtitle">Upload a photo of your skin concern for an AI-assisted assessment.</p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left: Wizard Form -->
+          <div class="col-lg-7">
+            <!-- Progress Steps -->
+            <div class="steps-nav card p-3 mb-4">
+              <div class="step-item">
+                <div class="step-circle active" id="step-circle-1">1</div>
+                <span class="step-label active" id="step-label-1">Upload Photo</span>
+              </div>
+              <div class="step-line" id="step-line-12"></div>
+              <div class="step-item">
+                <div class="step-circle" id="step-circle-2">2</div>
+                <span class="step-label" id="step-label-2">Symptoms</span>
+              </div>
+              <div class="step-line" id="step-line-23"></div>
+              <div class="step-item">
+                <div class="step-circle" id="step-circle-3">3</div>
+                <span class="step-label" id="step-label-3">Results</span>
+              </div>
+            </div>
+
+            <!-- STEP 1: PHOTO UPLOAD -->
+            <div id="scan-track-context" class="alert-inline info mb-3 d-none">
+              <i class="fa-solid fa-link"></i>
+              <div>New scans from this screen will be added to <strong id="scan-track-name"></strong>.</div>
+            </div>
+
+            <div id="scanner-step-1" class="card p-4">
+              <h5 class="fw-700 mb-3"><i class="fa-solid fa-camera text-teal me-2"></i>Upload Skin Photo</h5>
+
+              <p class="small text-muted">Upload a close-up photo of the affected skin.</p>
+              <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="scan-screening-consent">
+                <label class="form-check-label small" for="scan-screening-consent">Allow this photo to be sent to Google Gemini to check whether it is suitable for skin assessment.</label>
+              </div>
+
+              <!-- Dropzone -->
+              <div class="dropzone text-center mb-3" id="scan-dropzone" tabindex="0" role="button" aria-label="Click to upload skin photo">
+                <i class="fa-solid fa-cloud-arrow-up mb-3" style="font-size:2.5rem; color:var(--teal-400);"></i>
+                <h6 class="fw-700">Click to select or drag & drop</h6>
+                <p class="text-muted small mb-3">JPG, PNG, WEBP — Max 16 MB</p>
+                <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('scan-file-input').click()">
+                  <i class="fa-solid fa-folder-open me-1"></i>Select Photo
+                </button>
+                <span class="mx-2 text-muted small">or</span>
+                <button type="button" class="btn btn-secondary btn-sm" id="scan-camera-btn">
+                  <i class="fa-solid fa-camera me-1"></i>Use Camera
+                </button>
+                <input type="file" id="scan-file-input" accept="image/jpeg,image/png,image/webp" class="d-none">
+              </div>
+
+              <!-- Image Preview -->
+              <div id="scan-preview-container" class="d-none mb-3">
+                <div class="card p-3 bg-teal-soft border-teal text-center">
+                  <img id="scan-preview-img" src="#" alt="Preview" class="img-fluid rounded-lg mb-3" style="max-height:280px; object-fit:contain;">
+                  <div class="d-flex justify-content-center gap-2">
+                    <span class="badge-pill badge-emerald" id="scan-quality-badge"><i class="fa-solid fa-check me-1"></i>Image Loaded</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('scan-file-input').click()">
+                      <i class="fa-solid fa-arrows-rotate me-1"></i>Replace
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" id="scan-remove-img">
+                      <i class="fa-solid fa-trash me-1"></i>Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Photo Tips -->
+              <div class="alert-inline info">
+                <i class="fa-solid fa-lightbulb"></i>
+                <div class="small">
+                  <div class="fw-600 mb-1">Tips for Best Results</div>
+                  Use natural lighting · Keep camera focused · Avoid filters or heavy shadows
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-3">
+                <button class="btn btn-primary" id="step1-next-btn" disabled>
+                  Next: Add Symptoms <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 2: SYMPTOMS -->
+            <div id="scanner-step-2" class="d-none card p-4">
+              <h5 class="fw-700 mb-1"><i class="fa-solid fa-clipboard-question text-teal me-2"></i>Symptom Details</h5>
+              <p class="text-muted small mb-4">Optional — helps improve the AI assessment accuracy.</p>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Affected Body Region</label>
+                  <select id="input-location" class="form-select">
+                    <option value="Arm / Hand">Arm or Hand</option>
+                    <option value="Leg / Foot">Leg or Foot</option>
+                    <option value="Face / Neck">Face or Neck</option>
+                    <option value="Torso / Back">Torso or Back</option>
+                    <option value="Scalp">Scalp</option>
+                    <option value="Other">Other Body Area</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Duration (Days Noticed)</label>
+                  <input type="number" id="input-duration" class="form-control" value="5" min="1" max="365">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <label class="form-label mb-0">Itching Intensity</label>
+                  <span class="badge-pill badge-teal" id="val-itching">0 / 10</span>
+                </div>
+                <input type="range" class="form-range" id="input-itching" min="0" max="10" value="0">
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <label class="form-label mb-0">Pain or Tenderness</label>
+                  <span class="badge-pill badge-teal" id="val-pain">0 / 10</span>
+                </div>
+                <input type="range" class="form-range" id="input-pain" min="0" max="10" value="0">
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <label class="form-label mb-0">Visible Redness</label>
+                  <span class="badge-pill badge-teal" id="val-redness">0 / 10</span>
+                </div>
+                <input type="range" class="form-range" id="input-redness" min="0" max="10" value="0">
+              </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label">Associated Fever?</label>
+                  <select id="input-fever" class="form-select">
+                    <option value="0">No Fever</option>
+                    <option value="1">Mild (&lt; 100.4°F)</option>
+                    <option value="2">High (&ge; 100.4°F)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Burning Sensation?</label>
+                  <select id="input-burning" class="form-select">
+                    <option value="0">None</option>
+                    <option value="1">Mild</option>
+                    <option value="2">Moderate</option>
+                    <option value="3">Severe</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between gap-2">
+                <button class="btn btn-secondary" id="step2-back-btn">
+                  <i class="fa-solid fa-arrow-left me-1"></i>Back
+                </button>
+                <button class="btn btn-primary" id="step2-analyze-btn">
+                  <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Run AI Assessment
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3: ANALYZING SPINNER -->
+            <div id="scanner-step-loading" class="d-none card p-5 text-center">
+              <div class="mb-4" style="position:relative; display:inline-block; margin:0 auto;">
+                <div class="spinner-border" style="width:64px;height:64px; color:var(--teal-600);" role="status"></div>
+                <i class="fa-solid fa-microscope position-absolute" style="top:50%;left:50%;transform:translate(-50%,-50%); color:var(--teal-600); font-size:1.5rem;"></i>
+              </div>
+              <h4 class="fw-700 mb-2">Analyzing Your Skin Photo</h4>
+              <p class="text-muted">Running Dataset2 MobileNetV2 classification and Grad-CAM...</p>
+              <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                <span class="badge-pill badge-teal"><i class="fa-solid fa-brain me-1"></i>MobileNetV2</span>
+                <span class="badge-pill badge-blue"><i class="fa-solid fa-layer-group me-1"></i>9 classes</span>
+                <span class="badge-pill badge-purple"><i class="fa-solid fa-eye me-1"></i>Grad-CAM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Guidance Panel -->
+          <div class="col-lg-5">
+            <div class="card p-4 mb-3">
+              <h6 class="fw-700 mb-3"><i class="fa-solid fa-circle-info text-teal me-2"></i>Supported Conditions</h6>
+              <div class="d-flex flex-column gap-2">
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-amber">AKIEC</span>Actinic keratosis</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-blue">ECZEMA</span>Atopic Dermatitis</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-teal">BKL</span>Benign keratosis</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-blue">DF</span>Dermatofibroma</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-emerald">NV</span>Melanocytic nevus</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-rose">MEL</span>Melanoma</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-rose">SCC</span>Squamous cell carcinoma</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-teal">TINEA</span>Tinea Ringworm Candidiasis</div>
+                <div class="d-flex align-items-center gap-2 small"><span class="badge-pill badge-purple">VASC</span>Vascular lesion</div>
+              </div>
+            </div>
+            <div class="alert-inline warning">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div class="small">
+                <div class="fw-700 mb-1">Medical Disclaimer</div>
+                This AI assessment is for educational purposes only and does not constitute a medical diagnosis. Always consult a qualified dermatologist.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS SECTION (shown after analysis) -->
+        <div id="scan-results-section" class="d-none mt-4">
+
+          <!-- Language Selector Bar (Req 32) -->
+          <div class="card p-3 mb-4 d-flex flex-row justify-content-between align-items-center flex-wrap gap-2" style="background:var(--bg-subtle);">
+            <div class="fw-700 text-teal small">
+              <i class="fa-solid fa-language me-2"></i>Home Care & Prevention Guidance Language:
+            </div>
+            <div class="btn-group btn-group-sm" role="group" id="res-lang-btn-group">
+              <button type="button" class="btn btn-primary active" data-lang="en">English</button>
+              <button type="button" class="btn btn-outline-primary" data-lang="hi">हिंदी (Hindi)</button>
+              <button type="button" class="btn btn-outline-primary" data-lang="bho">भोजपुरी (Bhojpuri)</button>
+              <button type="button" class="btn btn-outline-primary" data-lang="mr">मराठी (Marathi)</button>
+            </div>
+          </div>
+
+          <!-- 1. 🔬 AI Assessment & 2. 📊 Model Information -->
+          <div class="card p-4 p-md-5 mb-4" style="border-left:4px solid var(--teal-600);">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+              <div>
+                <span class="badge-pill badge-teal mb-2"><i class="fa-solid fa-square-poll-vertical me-1"></i>AI Assessment</span>
+                <h2 class="fw-800 mb-1" id="res-predicted-name">Condition Name</h2>
+                <div class="text-muted small">
+                  ID: <span class="fw-600 text-primary" id="res-assessment-id">ASS-0000</span>
+                  &nbsp;·&nbsp; <span id="res-assessment-date"></span>
+                </div>
+              </div>
+              <div class="text-end">
+                <div class="badge-pill" style="background:var(--teal-600); color:#fff; font-size:1rem; padding:0.5rem 1rem;" id="res-confidence-badge">88% Match</div>
+                <div class="small text-muted mt-1" id="res-reliability-label">High Confidence</div>
+                <div class="small mt-1" id="res-uncertainty-badge"></div>
+              </div>
+            </div>
+
+            <div class="row g-4 align-items-center mb-4">
+              <div class="col-md-4 text-center">
+                <div class="border rounded-lg p-2 bg-teal-soft">
+                  <img id="res-uploaded-img" src="#" alt="Uploaded Photo" class="img-fluid rounded-lg" style="max-height:220px; object-fit:contain;">
+                  <div class="small text-muted mt-1">Uploaded Photo</div>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="alert-inline info mb-3" id="res-summary-alert">
+                  <i class="fa-solid fa-circle-info"></i>
+                  <p class="mb-0 small" id="res-clinical-summary">Assessment overview loading…</p>
+                </div>
+                <div class="alert-inline warning">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  <p class="mb-0 small"><strong>Model Information:</strong> This result is an AI-assisted assessment and is not a confirmed diagnosis. Always consult a certified dermatologist.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. 🩺 About This Condition -->
+          <div class="card p-4 mb-4">
+            <h5 class="fw-700 mb-3"><i class="fa-solid fa-stethoscope text-teal me-2"></i>About This Condition</h5>
+            <p class="text-muted small mb-0" id="res-condition-description"></p>
+          </div>
+
+          <!-- Top 3 AI Predictions -->
+          <div class="card p-4 mb-4">
+            <h5 class="fw-700 mb-3"><i class="fa-solid fa-chart-bar text-teal me-2"></i>Top AI Predictions</h5>
+            <div id="res-top3-list" class="d-flex flex-column gap-2"></div>
+          </div>
+
+          <!-- Grad-CAM XAI -->
+          <div class="card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="fw-700 mb-1"><i class="fa-solid fa-eye text-teal me-2"></i>What the AI Focused On</h5>
+                <p class="text-muted small mb-0">Grad-CAM heatmap highlights regions that influenced the model's prediction.</p>
+              </div>
+              <span class="badge-pill badge-neutral">Explainable AI</span>
+            </div>
+            <div class="row g-4 align-items-center">
+              <div class="col-md-5 text-center">
+                <div class="xai-viewer">
+                  <img id="xai-img-original" src="#" alt="Original" class="xai-img-base">
+                  <img id="xai-img-heatmap" src="#" alt="Heatmap" class="xai-img-overlay" style="opacity:0.55;">
+                </div>
+              </div>
+              <div class="col-md-7">
+                <p class="text-muted small mb-3" id="xai-description">
+                  Warm (red/yellow) regions show areas the model weighted most heavily. This is not proof of diagnosis — it shows the model's attention, not confirmed pathology.
+                </p>
+                <label class="form-label small">Heatmap Opacity: <span id="xai-opacity-val" class="fw-700">55%</span></label>
+                <input type="range" class="form-range" id="xai-opacity-slider" min="0" max="100" value="55">
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Patient-Friendly XAI Breakdown Card -->
+          <div class="card p-4 mb-4" style="border-left:4px solid var(--purple-500);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="fw-700 mb-1" style="color:var(--purple-600);" data-i18n="xai_title"><i class="fa-solid fa-brain me-2"></i>Why Did the AI Predict This?</h5>
+                <p class="text-muted small mb-0" data-i18n="xai_subtitle">Step-by-step natural language breakdown of how the AI analyzed your skin photo & symptoms.</p>
+              </div>
+              <span class="badge-pill badge-purple"><i class="fa-solid fa-lightbulb me-1"></i>Plain English XAI</span>
+            </div>
+
+            <div class="alert-inline info mb-3" style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.25);">
+              <i class="fa-solid fa-wand-magic-sparkles text-purple"></i>
+              <div class="small fw-600 text-purple" id="xai-pf-headline">
+                The AI neural ensemble evaluated your skin photo and reported symptoms, finding an alignment with the predicted condition.
+              </div>
+            </div>
+
+            <div class="row g-4 mb-3">
+              <!-- Visual Cues Identified -->
+              <div class="col-md-6">
+                <div class="p-3 rounded-lg border h-100" style="background:var(--bg-subtle);">
+                  <h6 class="fw-700 text-teal mb-2" data-i18n="xai_visual_patterns"><i class="fa-solid fa-eye me-2"></i>Visual Patterns Detected in Photo</h6>
+                  <ul class="text-muted small mb-0 ps-3" id="xai-pf-visual-list">
+                    <li>Analyzing visual characteristics…</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Symptom Analysis -->
+              <div class="col-md-6">
+                <div class="p-3 rounded-lg border h-100" style="background:var(--bg-subtle);">
+                  <h6 class="fw-700 text-blue mb-2" data-i18n="xai_symptom_certainty"><i class="fa-solid fa-sliders me-2"></i>Symptom & Certainty Impact</h6>
+                  <ul class="text-muted small mb-0 ps-3" id="xai-pf-symptom-list">
+                    <li>Evaluating symptom parameters…</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alternative Possibilities & Takeaway -->
+            <div class="pt-3 border-top">
+              <div class="small mb-2">
+                <strong style="color:var(--amber-600);" data-i18n="xai_why_not_alt"><i class="fa-solid fa-scale-balanced me-1"></i>Why Not Alternative Conditions?</strong>
+                <span class="text-muted ms-1" id="xai-pf-alternatives">Evaluating alternative predictions…</span>
+              </div>
+              <div class="small text-muted" id="xai-pf-takeaway">
+                This breakdown explains the AI's internal decision process to help you understand your result.
+              </div>
+            </div>
+          </div>
+
+          <!-- Symptom Summary & Severity -->
+          <div class="card p-4 mb-4">
+            <h5 class="fw-700 mb-3" data-i18n="symptom_summary"><i class="fa-solid fa-sliders text-teal me-2"></i>Symptom Summary</h5>
+            <div class="row g-3" id="res-symptom-bars"></div>
+            <div class="d-flex align-items-center gap-2 mt-3 pt-3 border-top">
+              <span class="text-muted small" data-i18n="calculated_severity">Calculated Severity:</span>
+              <span class="badge-pill badge-teal" id="res-severity-badge">Mild</span>
+              <span class="text-muted small">(Score: <span id="res-severity-score">0</span>/100)</span>
+            </div>
+          </div>
+
+          <!-- 4. 🏠 What You Can Do at Home (Supportive Home Care vs Medical Treatment) (Reqs 19, 23) -->
+          <div class="card p-4 mb-4" style="border-left:4px solid var(--teal-600);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-700 mb-0" data-i18n="supportive_home_care"><i class="fa-solid fa-house-medical text-teal me-2"></i>🏠 What You Can Do at Home</h5>
+              <span class="badge-pill badge-teal" id="res-care-guidance-type">Supportive Home Care</span>
+            </div>
+
+            <p class="text-muted small mb-3" id="res-general-guidance-notice" hidden>Condition-specific guidance is unavailable. The information below is general.</p>
+
+            <!-- Mandatory Doctor Consultation Warning (High Visibility) -->
+            <div class="alert-inline danger mb-3" style="border-left:4px solid var(--rose-600); background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25);">
+              <i class="fa-solid fa-user-doctor text-rose fa-lg"></i>
+              <div>
+                <strong class="text-rose d-block mb-1"><i class="fa-solid fa-circle-exclamation me-1"></i>Doctor Consultation Mandatory:</strong>
+                <p class="mb-0 small text-muted" id="res-doctor-mandatory-notice">
+                  Home supportive care measures are intended ONLY to reduce surface discomfort and protect the skin barrier. They DO NOT cure, treat, or resolve underlying dermatological conditions. You MUST consult a qualified dermatologist or medical doctor for formal diagnosis and prescription treatment.
+                </p>
+              </div>
+            </div>
+
+            <!-- Distinction Banner (Req 23) -->
+            <div class="alert-inline info mb-3">
+              <i class="fa-solid fa-circle-info"></i>
+              <div class="small">
+                <strong>Supportive Home Care vs. Medical Treatment:</strong>
+                "These measures may help support your skin and reduce irritation, but they do not confirm or treat the underlying condition."
+              </div>
+            </div>
+
+            <h6 class="fw-700 text-teal mb-2" data-i18n="recommended_self_care">Recommended Self-Care</h6>
+            <ul class="text-muted small mb-3 ps-4" id="res-care-list">
+              <!-- Dynamic bullets -->
+            </ul>
+
+            <div class="p-3 bg-teal-soft rounded-lg border-teal">
+              <div class="fw-700 text-teal small mb-1" data-i18n="medical_treatment_info"><i class="fa-solid fa-capsules me-2"></i>💊 Medical Treatment Information</div>
+              <p class="text-muted small mb-0" id="res-medical-treatment-info">
+                Medical treatments (such as prescription ointments, procedures, or medications) require formal evaluation and prescription by a qualified healthcare professional.
+              </p>
+            </div>
+          </div>
+
+          <!-- 5. 🛡️ Prevention Section (Req 24) -->
+          <div class="card p-4 mb-4">
+            <h5 class="fw-700 mb-3" style="color:var(--blue-600);" data-i18n="prevention"><i class="fa-solid fa-shield-virus me-2"></i>🛡️ How to Prevent or Reduce Flare-Ups</h5>
+            <ul class="text-muted small mb-0 ps-4" id="res-preventive-list">
+              <!-- Dynamic bullets -->
+            </ul>
+          </div>
+
+          <!-- 6. ⚠️ Things to Avoid (Req 25) -->
+          <div class="card p-4 mb-4" style="border-left:4px solid var(--rose-500);">
+            <h5 class="fw-700 mb-3" style="color:var(--rose-600);" data-i18n="things_to_avoid"><i class="fa-solid fa-ban me-2"></i>⚠️ Things to Avoid</h5>
+            <ul class="text-muted small mb-0 ps-4" id="res-avoid-list">
+              <!-- Dynamic bullets -->
+            </ul>
+          </div>
+
+          <!-- 7. 👨‍⚕️ When to See a Dermatologist (Req 26) -->
+          <div class="card p-4 mb-4" style="border-left:4px solid var(--amber-500);">
+            <h5 class="fw-700 mb-3" style="color:var(--amber-600);" data-i18n="when_to_see_doctor"><i class="fa-solid fa-user-doctor me-2"></i>👨‍⚕️ When to See a Dermatologist</h5>
+            <ul class="text-muted small mb-3 ps-4" id="res-dermatologist-list">
+              <!-- Dynamic bullets -->
+            </ul>
+            <div class="alert-inline warning mb-0">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <div class="small">
+                <strong>Important:</strong> High AI confidence scores NEVER mean professional evaluation is unnecessary. If you have concerns, consult a board-certified dermatologist.
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. 🚨 Urgent Warning Signs (Req 27) -->
+          <div class="card p-4 mb-4 bg-rose-soft border-rose">
+            <h5 class="fw-700 mb-3 text-rose" data-i18n="urgent_warning_signs"><i class="fa-solid fa-circle-exclamation me-2"></i>🚨 Seek Medical Attention Promptly</h5>
+            <ul class="text-muted small mb-0 ps-4" id="res-warning-signs-list">
+              <!-- Dynamic bullets -->
+            </ul>
+          </div>
+
+          <!-- 9. 📚 Learn More & References (Req 31) -->
+          <div class="card p-4 mb-4">
+            <h5 class="fw-700 mb-3" data-i18n="learn_more"><i class="fa-solid fa-book-medical text-teal me-2"></i>📚 Learn More & Medical References</h5>
+            <div id="res-references-container" class="d-flex flex-column gap-2 mb-3">
+              <!-- Dynamic links -->
+            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center text-muted small pt-2 border-top gap-2">
+              <div>Medical Content Version: <span id="res-kb-version" class="fw-600">1.0</span></div>
+              <div>Last Medical Review: <span id="res-kb-reviewed" class="fw-600">2026-10-01</span></div>
+            </div>
+          </div>
+
+          <!-- 10. Interactive Symptom Questionnaire / Triage Refinement (Req 28) -->
+          <div class="card p-4 mb-4" style="background:var(--bg-subtle); border:1.5px dashed var(--teal-400);">
+            <h5 class="fw-700 mb-2"><i class="fa-solid fa-clipboard-question text-teal me-2"></i>Would you like to tell us more about your symptoms?</h5>
+            <p class="text-muted small mb-3">Answering these optional safety questions will dynamically tailor your personalized home-care guidance.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="quest-spreading">
+                  <label class="form-check-label small" for="quest-spreading">Is it spreading or expanding?</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="quest-discharge">
+                  <label class="form-check-label small" for="quest-discharge">Is there any pus or discharge?</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="quest-cracked">
+                  <label class="form-check-label small" for="quest-cracked">Is the skin cracked or bleeding?</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="quest-cosmetic">
+                  <label class="form-check-label small" for="quest-cosmetic">Recently used a new cosmetic or product?</label>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-sm fw-600" id="quest-update-btn">
+              <i class="fa-solid fa-arrows-rotate me-1"></i>Update Personalized Home Care
+            </button>
+          </div>
+
+          <!-- Mandatory Safety Disclaimer Banner (Req 33) -->
+          <div class="card p-3 mb-4 bg-light border text-center">
+            <p class="small text-muted mb-0" id="res-safety-disclaimer">
+              <i class="fa-solid fa-shield-halved text-teal me-1"></i>
+              Home-care information is provided for general educational and supportive purposes. It is not a diagnosis, prescription, or substitute for evaluation by a qualified healthcare professional. If your symptoms are severe, worsening, persistent, or concerning, seek professional medical care.
+            </p>
+          </div>
+
+          <!-- Escalation Alert (shown if high-risk) -->
+          <div class="alert-inline danger mb-4 d-none" id="res-escalation-alert">
+            <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+            <div>
+              <div class="fw-700">Referred for Clinical Review</div>
+              <div class="small mt-1" id="res-escalation-reason">This assessment has been automatically flagged for review by a dermatologist due to the predicted condition and confidence level.</div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex flex-wrap gap-3 justify-content-center">
+            <button class="btn btn-primary btn-lg" id="res-download-pdf-btn">
+              <i class="fa-solid fa-file-pdf me-2"></i>Download PDF Report
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="navigateTo('assistant')">
+              <i class="fa-solid fa-comments me-2"></i>Ask AI Assistant
+            </button>
+            <button class="btn btn-ghost btn-lg d-none" id="res-view-track-btn">
+              <i class="fa-solid fa-chart-line me-2"></i>View Lesion Timeline
+            </button>
+            <button class="btn btn-ghost btn-lg" id="res-add-track-btn">
+              <i class="fa-solid fa-chart-line me-2"></i>Add to Lesion Track
+            </button>
+            <button class="btn btn-ghost btn-lg" id="res-new-scan-btn">
+              <i class="fa-solid fa-rotate-left me-2"></i>New Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: HISTORY                ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-history">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-file-medical text-teal me-2"></i>My Scan Reports</h2>
+            <p class="section-subtitle">Review all your past skin health assessments.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-ghost btn-sm" id="hist-toggle-view" title="Toggle card/table view">
+              <i class="fa-solid fa-grip" id="hist-view-icon"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="hist-refresh-btn">
+              <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card p-3 mb-4">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-5">
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="hist-search" class="form-control" placeholder="Search by condition or ID…">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select id="hist-class-filter" class="form-select">
+                <option value="all">All Conditions</option>
+                <option value="mel">Melanoma</option>
+                <option value="bcc">Basal Cell Carcinoma</option>
+                <option value="akiec">Actinic Keratosis</option>
+                <option value="bkl">Benign Keratosis</option>
+                <option value="nv">Nevi (Moles)</option>
+                <option value="df">Dermatofibroma</option>
+                <option value="vasc">Vascular</option>
+                <option value="eczema">Atopic Dermatitis</option>
+                <option value="scc">Squamous Cell Carcinoma</option>
+                <option value="tinea">Tinea Ringworm Candidiasis</option>
+                <option value="psoriasis">Psoriasis</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex gap-2">
+                <input type="date" id="hist-date-from" class="form-control" title="From date">
+                <input type="date" id="hist-date-to" class="form-control" title="To date">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content: Card View -->
+        <div id="hist-card-view">
+          <div class="row g-3" id="hist-cards-container">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Content: Table View -->
+        <div id="hist-table-view" class="d-none">
+          <div class="card overflow-hidden">
+            <div class="table-responsive">
+              <table class="data-table" id="hist-table">
+                <thead>
+                  <tr>
+                    <th class="ps-4">ID</th>
+                    <th>Date</th>
+                    <th>Condition</th>
+                    <th>Confidence</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="hist-table-body">
+                  <tr><td colspan="7" class="text-center py-5 text-muted">Loading reports…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: LESION TRACKING        ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-tracking">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" data-i18n="tracking_title"><i class="fa-solid fa-chart-line text-teal me-2"></i>Lesion Tracking</h2>
+            <p class="section-subtitle" data-i18n="tracking_subtitle">Monitor changes in specific skin lesions over time.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" id="create-track-btn" data-i18n="new_track_btn">
+            <i class="fa-solid fa-plus me-1"></i>New Track
+          </button>
+        </div>
+        <div id="tracking-container">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: AI ASSISTANT           ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-assistant">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" data-i18n="assistant_title"><i class="fa-solid fa-user-doctor text-teal me-2"></i>Skin Health Assistant</h2>
+            <p class="section-subtitle" data-i18n="assistant_subtitle">Ask anything about your skin health, conditions, or assessment results.</p>
+          </div>
+          <div class="d-flex gap-2 align-items-center">
+            <select id="chat-language" class="form-select form-select-sm" style="width:auto;">
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="mr">मराठी (Marathi)</option>
+              <option value="bho">भोजपुरी (Bhojpuri)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+              <option value="ta">தமிழ் (Tamil)</option>
+              <option value="te">తెలుగు (Telugu)</option>
+              <option value="gu">ગુજરાતી (Gujarati)</option>
+              <option value="kn">ಕನ್ನಡ (Kannada)</option>
+              <option value="es">Español (Spanish)</option>
+            </select>
+            <button class="btn btn-ghost btn-sm text-teal" id="chat-tts-toggle" title="Toggle AI Voice Output (Read Aloud)" aria-label="Toggle text to speech">
+              <i class="fa-solid fa-volume-xmark" id="chat-tts-icon"></i>
+            </button>
+            <button class="btn btn-ghost btn-sm" id="clear-chat-btn" title="Clear conversation" data-i18n="clearChatBtn">
+              <i class="fa-solid fa-trash me-1"></i>Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Assistant Card -->
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="chat-wrapper">
+              <!-- Chat messages area -->
+              <div class="chat-messages" id="chat-messages">
+                <div class="d-flex gap-2 align-items-start">
+                  <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal-500),var(--teal-700));display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fa-solid fa-user-doctor text-white" style="font-size:0.8rem;"></i>
+                  </div>
+                  <div class="chat-bubble-assistant" data-i18n-html="chatWelcomeBubble">
+                    <strong>Hello! I'm your SkinSense AI Assistant.</strong><br>
+                    I can help you understand your skin assessment results, explain common skin conditions, and provide general skin care guidance. How can I help you today?
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat Footer -->
+              <div class="chat-footer">
+                <!-- Quick prompts -->
+                <div class="quick-prompts" id="chat-quick-prompts">
+                  <button class="quick-prompt-chip" data-i18n="qpExplainScan" onclick="sendChatMessage(window.I18nModule ? window.I18nModule.t('qpExplainScan') : 'Explain my latest scan')">Explain my latest scan</button>
+                  <button class="quick-prompt-chip" data-i18n="qpSkinTips" onclick="sendChatMessage(window.I18nModule ? window.I18nModule.t('qpSkinTips') : 'Skin care tips')">Skin care tips</button>
+                  <button class="quick-prompt-chip" data-i18n="qpWhenDoctor" onclick="sendChatMessage(window.I18nModule ? window.I18nModule.t('qpWhenDoctor') : 'When to see a doctor')">When to see a doctor</button>
+                  <button class="quick-prompt-chip" data-i18n="qpConfidence" onclick="sendChatMessage(window.I18nModule ? window.I18nModule.t('qpConfidence') : 'About confidence score')">About confidence score</button>
+                </div>
+
+                <!-- Voice input listening status indicator -->
+                <div id="chat-voice-status" class="d-none px-3 py-1 bg-rose-soft text-rose small fw-700 rounded-pill mb-2 align-items-center gap-2" style="width:fit-content;">
+                  <i class="fa-solid fa-microphone fa-beat text-rose"></i>
+                  <span id="chat-voice-status-text" data-i18n="voice_listening">Listening... Speak now</span>
+                </div>
+
+                <div class="form-check mb-2">
+                  <input type="checkbox" class="form-check-input" id="chat-screening-consent">
+                  <label class="form-check-label small" for="chat-screening-consent">Allow attached photos to be sent to Google Gemini for a skin-photo suitability check.</label>
+                </div>
+                <!-- Attachment preview badge -->
+                <div id="chat-attach-preview" class="d-none px-3 py-1 bg-teal-soft text-teal small fw-600 rounded-pill mb-2 align-items-center justify-content-between" style="width:fit-content;">
+                  <span id="chat-attach-filename"><i class="fa-solid fa-paperclip me-1"></i>Photo attached</span>
+                  <button type="button" class="btn-close btn-close-sm ms-2" id="chat-remove-attach" aria-label="Remove attachment" style="font-size:0.65rem;"></button>
+                </div>
+
+                <!-- Input row -->
+                <div class="chat-input-row">
+                  <button type="button" class="btn btn-ghost btn-sm text-teal me-1 px-2" id="chat-attach-btn" title="Attach skin photo for analysis">
+                    <i class="fa-solid fa-paperclip" style="font-size:1.1rem;"></i>
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm text-teal me-1 px-2" id="chat-voice-btn" title="Voice Input (Click to Speak)" aria-label="Voice input">
+                    <i class="fa-solid fa-microphone" id="chat-voice-icon" style="font-size:1.1rem;"></i>
+                  </button>
+                  <input type="file" id="chat-image-input" accept="image/jpeg,image/png,image/webp" class="d-none">
+                  <input type="text" class="chat-input" id="chat-text-input" placeholder="Type your skin health question, speak, or attach a photo…" data-i18n-placeholder="chatInputPlaceholder" autocomplete="off" aria-label="Chat message input">
+                  <button class="chat-send-btn" id="chat-send-btn" aria-label="Send message">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card p-4 mb-3">
+              <h6 class="fw-700 mb-3" data-i18n="assistantSafetyTitle"><i class="fa-solid fa-shield-halved text-teal me-2"></i>Assistant Safety</h6>
+              <ul class="text-muted small mb-0 ps-3">
+                <li data-i18n="assistantSafetyRule1">Provides general skin health education only</li>
+                <li data-i18n="assistantSafetyRule2">Does not prescribe medications</li>
+                <li data-i18n="assistantSafetyRule3">Does not replace a dermatologist</li>
+                <li data-i18n="assistantSafetyRule4">Cannot confirm or deny a diagnosis</li>
+              </ul>
+            </div>
+            <div class="card p-4" id="last-scan-summary-card">
+              <h6 class="fw-700 mb-2" data-i18n="activeScanContextTitle"><i class="fa-solid fa-file-medical text-teal me-2"></i>Your Latest Scan</h6>
+              <div id="assistant-last-scan-info" class="text-muted small">No recent scan found.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: EDUCATION CENTER        ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-education">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title" data-i18n="education_title"><i class="fa-solid fa-book-medical text-teal me-2"></i>Skin Education Center</h2>
+            <p class="section-subtitle" data-i18n="education_subtitle">Learn about common skin conditions, care tips, and warning signs.</p>
+          </div>
+        </div>
+
+        <!-- Search + Filter -->
+        <div class="card p-3 mb-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="edu-search" class="form-control" data-i18n-placeholder="search_placeholder" placeholder="Search conditions, symptoms…">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select id="edu-filter-type" class="form-select">
+                <option value="all" data-i18n="all_categories">All Categories</option>
+                <option value="benign" data-i18n="cat_benign">Benign</option>
+                <option value="malignant" data-i18n="cat_malignant">Malignant</option>
+                <option value="pre-cancerous" data-i18n="cat_precancerous">Pre-cancerous</option>
+                <option value="vascular" data-i18n="cat_vascular">Vascular</option>
+                <option value="inflammatory" data-i18n="cat_inflammatory">Inflammatory</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Condition Cards Wrapper -->
+        <div id="edu-conditions-grid-wrapper">
+          <div class="row g-4" id="edu-conditions-grid">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Detail Panel (hidden by default) -->
+        <div id="edu-detail-panel" class="d-none"></div>
+
+        <!-- ABCDE Rule -->
+        <div class="card p-4 mt-4 mb-4">
+          <h4 class="fw-700 mb-3"><i class="fa-solid fa-magnifying-glass-chart text-teal me-2"></i>The ABCDE Rule for Mole Monitoring</h4>
+          <div class="row g-3">
+            <div class="col-md" style="border-left:3px solid var(--teal-500); padding-left:1rem;">
+              <div class="fw-700 text-teal">A — Asymmetry</div>
+              <div class="text-muted small">One half of a mole doesn't match the other half.</div>
+            </div>
+            <div class="col-md" style="border-left:3px solid var(--blue-500); padding-left:1rem;">
+              <div class="fw-700" style="color:var(--blue-600);">B — Border</div>
+              <div class="text-muted small">Irregular, ragged, or blurry borders instead of smooth edges.</div>
+            </div>
+            <div class="col-md" style="border-left:3px solid var(--amber-500); padding-left:1rem;">
+              <div class="fw-700" style="color:var(--amber-600);">C — Color</div>
+              <div class="text-muted small">Multiple shades of brown, black, red, or white in one spot.</div>
+            </div>
+            <div class="col-md" style="border-left:3px solid var(--rose-500); padding-left:1rem;">
+              <div class="fw-700" style="color:var(--rose-600);">D — Diameter</div>
+              <div class="text-muted small">Larger than 6mm (about the size of a pencil eraser).</div>
+            </div>
+            <div class="col-md" style="border-left:3px solid var(--purple-500); padding-left:1rem;">
+              <div class="fw-700" style="color:var(--purple-600);">E — Evolving</div>
+              <div class="text-muted small">Any mole that is changing in size, shape, color, or bleeding.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <h4 class="fw-700 mb-3">Frequently Asked Questions</h4>
+        <div class="accordion" id="edu-faq"></div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  PAGE: PROFILE                ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-profile">
+        <div class="section-header">
+          <h2 class="section-title"><i class="fa-solid fa-circle-user text-teal me-2"></i>My Profile</h2>
+        </div>
+
+        <div class="row g-4">
+          <!-- Left: Avatar + Role -->
+          <div class="col-lg-4">
+            <div class="card p-4 text-center">
+              <div class="profile-avatar-lg mx-auto mb-3" id="profile-avatar-display">U</div>
+              <h5 class="fw-700 mb-1" id="profile-display-name">Loading…</h5>
+              <span class="badge-pill badge-teal" id="profile-role-badge">Patient</span>
+              <p class="text-muted small mt-2 mb-0" id="profile-email-display"></p>
+              <hr>
+              <div class="d-grid gap-2">
+                <button class="btn btn-danger btn-sm" id="logout-btn-profile">
+                  <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Edit Form + Change Password -->
+          <div class="col-lg-8">
+            <div class="card p-4 mb-4">
+              <h5 class="fw-700 mb-4">Personal Information</h5>
+              <form id="profile-form">
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="prof-fullname" class="form-control">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="prof-email" class="form-control" readonly style="background:var(--bg-muted);">
+                  </div>
+                </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" id="prof-dob" class="form-control">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" id="prof-phone" class="form-control" placeholder="+1 234 567 8900">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Fitzpatrick Skin Type</label>
+                    <select id="prof-fitzpatrick" class="form-select">
+                      <option value="">Not specified</option>
+                      <option value="I">Type I — Very Fair</option>
+                      <option value="II">Type II — Fair</option>
+                      <option value="III">Type III — Medium</option>
+                      <option value="IV">Type IV — Olive</option>
+                      <option value="V">Type V — Brown</option>
+                      <option value="VI">Type VI — Dark</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa-solid fa-floppy-disk me-2"></i>Save Changes
+                </button>
+              </form>
+            </div>
+
+            <div class="card p-4">
+              <h5 class="fw-700 mb-4"><i class="fa-solid fa-lock text-teal me-2"></i>Change Password</h5>
+              <form id="change-pw-form">
+                <div class="mb-3">
+                  <label class="form-label">Current Password</label>
+                  <input type="password" id="cp-current" class="form-control" placeholder="••••••••">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">New Password</label>
+                  <input type="password" id="cp-new" class="form-control" placeholder="Minimum 8 characters">
+                  <div class="pw-strength-bar mt-2"><div class="pw-strength-fill" id="cp-pw-fill" style="width:0%"></div></div>
+                  <div class="small text-muted mt-1" id="cp-pw-label"></div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Confirm New Password</label>
+                  <input type="password" id="cp-confirm" class="form-control" placeholder="Re-enter new password">
+                </div>
+                <button type="submit" class="btn btn-outline">
+                  <i class="fa-solid fa-shield-halved me-2"></i>Update Password
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  ADMIN: DASHBOARD             ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-admin-dashboard">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-gauge-high text-teal me-2"></i>Admin Dashboard</h2>
+            <p class="section-subtitle">Platform activity, active model, and system health.</p>
+          </div>
+          <span class="badge-pill badge-amber"><i class="fa-solid fa-shield-halved me-1"></i>Administrator</span>
+        </div>
+
+        <div class="row g-3 mb-4" id="admin-stats-row">
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+              <div><div class="stat-value" id="adm-total-users">—</div><div class="stat-label">Total Users</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon teal"><i class="fa-solid fa-file-medical"></i></div>
+              <div><div class="stat-value" id="adm-total-scans">—</div><div class="stat-label">Total Scans</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
+              <div><div class="stat-value" id="adm-pending-review">—</div><div class="stat-label">Pending Review</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon emerald"><i class="fa-solid fa-circle-check"></i></div>
+              <div><div class="stat-value" id="adm-model-status">?</div><div class="stat-label" id="adm-model-name">Active model</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="card p-4">
+              <h6 class="fw-700 mb-3">System Health</h6>
+              <div id="adm-health-details" class="d-flex flex-column gap-2"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card p-4">
+              <h6 class="fw-700 mb-3">Dataset2 Prediction Distribution</h6>
+              <p class="small text-muted">Scans with recorded Dataset2 model attribution.</p>
+              <div style="height:320px;"><canvas id="adm-class-chart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  ADMIN: USER MANAGEMENT       ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-admin-users">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-users-gear text-teal me-2"></i>User Management</h2>
+            <p class="section-subtitle">View and manage registered patient and administrator accounts.</p>
+          </div>
+          <span class="badge-pill badge-amber">Admin Only</span>
+        </div>
+
+        <!-- Filter Strip -->
+        <div class="card p-3 mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" id="adm-users-search" class="form-control border-start-0" placeholder="Search user by name, email, or ID...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select id="adm-users-role-select" class="form-select form-select-sm">
+                <option value="all">All Roles</option>
+                <option value="patient">Patient</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="adm-users-status-select" class="form-select form-select-sm">
+                <option value="all">All Statuses</option>
+                <option value="active">Active Accounts</option>
+                <option value="disabled">Disabled Accounts</option>
+              </select>
+            </div>
+            <div class="col-md-1 text-end">
+              <button class="btn btn-ghost btn-sm" id="adm-users-reset-btn" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="ps-4">Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                  <th>Scans</th>
+                  <th class="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adm-users-tbody">
+                <tr><td colspan="6" class="text-center py-5 text-muted">Loading users…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  ADMIN: MODEL ANALYTICS       ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-admin-analytics">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-chart-bar text-teal me-2"></i>Model Analytics</h2>
+            <p class="section-subtitle">Dataset2 validation results and recorded predictions.</p>
+          </div>
+          <span class="badge-pill badge-teal" id="adm-analytics-model">Dataset2 Keras MobileNetV2</span>
+        </div>
+
+        <!-- KPI Strip -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+              <div class="w-100"><div class="stat-value text-teal" id="kpi-accuracy">N/A</div><div class="stat-label">Accuracy</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+              <div class="w-100"><div class="stat-value" style="color:var(--blue-600);" id="kpi-precision">N/A</div><div class="stat-label">Macro Precision</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+              <div class="w-100"><div class="stat-value" style="color:var(--emerald-600);" id="kpi-recall">N/A</div><div class="stat-label">Macro Recall</div></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card text-center">
+              <div class="w-100"><div class="stat-value" style="color:var(--purple-600);" id="kpi-f1">N/A</div><div class="stat-label">Macro F1 Score</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <div class="card p-4">
+              <h6 class="fw-700 mb-3">Dataset2 Validation</h6>
+              <p class="small text-muted" id="adm-validation-summary" hidden></p>
+              <p class="text-muted small mb-0" id="adm-benchmark-unavailable">No evaluation metrics are available for this checkpoint.</p>
+              <div id="adm-benchmark-chart" style="height:280px;" hidden><canvas id="adm-per-class-chart"></canvas></div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card p-4">
+              <h6 class="fw-700 mb-3">Dataset2 Prediction Distribution</h6>
+              <p class="small text-muted">Counts reflect scans, including inconclusive results when present.</p>
+              <div style="height:320px;"><canvas id="adm-dist-chart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-4 mt-4" id="adm-class-validation" hidden>
+          <h6 class="fw-700 mb-3">Validation Results by Class</h6>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Condition</th>
+                  <th scope="col" class="text-end">Precision</th>
+                  <th scope="col" class="text-end">Recall</th>
+                  <th scope="col" class="text-end">F1 Score</th>
+                  <th scope="col" class="text-end">Samples</th>
+                </tr>
+              </thead>
+              <tbody id="adm-class-validation-rows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert-inline warning mt-4">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div class="small">Validation scores describe performance on the supplied Dataset2 split. Live prediction counts describe app activity. Clinical performance requires a separate evaluation.</div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  ADMIN: REVIEW QUEUE          ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-admin-review">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-stethoscope text-teal me-2"></i>Dermatologist Review Queue</h2>
+            <p class="section-subtitle">Patient scans queued for clinical review.</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="adm-refresh-queue-btn">
+            <i class="fa-solid fa-arrows-rotate me-1"></i>Refresh
+          </button>
+        </div>
+
+        <!-- Filter Strip -->
+        <div class="card p-3 mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" id="adm-review-search" class="form-control border-start-0" placeholder="Search by patient name, ID, or condition...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select id="adm-review-priority-select" class="form-select form-select-sm">
+                <option value="all">All Priorities</option>
+                <option value="urgent">Urgent Priority</option>
+                <option value="high">High Priority</option>
+                <option value="normal">Normal Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="adm-review-status-select" class="form-select form-select-sm">
+                <option value="all" selected>All Statuses</option>
+                <option value="pending">Pending Review</option>
+                <option value="in_review">In Review</option>
+                <option value="completed">Completed Verdicts</option>
+                <option value="rejected">Rejected Items</option>
+              </select>
+            </div>
+            <div class="col-md-1 text-end">
+              <button class="btn btn-ghost btn-sm" id="adm-review-reset-btn" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div id="adm-review-queue-container">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  ADMIN: AUDIT LOG             ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-admin-audit">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-shield-halved text-teal me-2"></i>Audit Log</h2>
+            <p class="section-subtitle">HIPAA-compliant log of all security-sensitive events.</p>
+          </div>
+        </div>
+
+        <!-- Filter Strip -->
+        <div class="card p-3 mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-7">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" id="adm-audit-search" class="form-control border-start-0" placeholder="Search by user email, action, resource, or IP address...">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select id="adm-audit-status-select" class="form-select form-select-sm">
+                <option value="all">All Outcomes</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed / Error</option>
+              </select>
+            </div>
+            <div class="col-md-1 text-end">
+              <button class="btn btn-ghost btn-sm" id="adm-audit-reset-btn" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="ps-4">Timestamp</th>
+                  <th>User</th>
+                  <th>Event</th>
+                  <th>IP Address</th>
+                  <th class="pe-4">Details</th>
+                </tr>
+              </thead>
+              <tbody id="adm-audit-tbody">
+                <tr><td colspan="5" class="text-center py-5 text-muted">Loading audit log…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════╗
+           ║  ADMIN: MEDICAL KNOWLEDGE     ║
+           ╚═══════════════════════════════╝ -->
+      <div class="page" id="page-admin-knowledge">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><i class="fa-solid fa-book-medical text-teal me-2"></i>Medical Content Management</h2>
+            <p class="section-subtitle">Manage condition descriptions, supportive care, prevention, things to avoid, and sources.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" id="adm-add-kb-btn">
+            <i class="fa-solid fa-plus me-1"></i>Add New Condition
+          </button>
+        </div>
+
+        <!-- Filter Strip -->
+        <div class="card p-3 mb-3">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" id="adm-kb-search" class="form-control border-start-0" placeholder="Search condition name or code...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select id="adm-kb-category-select" class="form-select form-select-sm">
+                <option value="all">All Categories</option>
+                <option value="Benign">Benign / Non-Cancerous</option>
+                <option value="Malignant">Malignant / Skin Cancer</option>
+                <option value="Pre-cancerous">Pre-cancerous / Actinic</option>
+                <option value="Inflammatory">Inflammatory</option>
+                <option value="General">General / Other</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select id="adm-kb-risk-select" class="form-select form-select-sm">
+                <option value="all">All Risk Levels</option>
+                <option value="High">High Risk</option>
+                <option value="Moderate">Moderate Risk</option>
+                <option value="Low">Low Risk</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select id="adm-kb-status-select" class="form-select form-select-sm">
+                <option value="all">All Statuses</option>
+                <option value="approved">Approved</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+            <div class="col-md-1 text-end">
+              <button class="btn btn-ghost btn-sm" id="adm-kb-reset-btn" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="ps-4">Code</th>
+                  <th>Condition Name</th>
+                  <th>Category</th>
+                  <th>Risk Level</th>
+                  <th>Version</th>
+                  <th>Reviewed</th>
+                  <th>Status</th>
+                  <th class="text-end pe-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adm-knowledge-tbody">
+                <tr><td colspan="8" class="text-center py-5 text-muted">Loading medical knowledge base…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<!-- ═══ ADD TO TRACK MODAL ═══ -->
+<div class="modal fade" id="addTrackModal" tabindex="-1" aria-labelledby="addTrackModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTrackModalLabel"><i class="fa-solid fa-chart-line text-teal me-2"></i>Add to Lesion Track</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">Select an existing track or create a new one to add this assessment.</p>
+        <div id="track-select-container">
+          <label class="form-label">Existing Tracks</label>
+          <select id="track-select" class="form-select mb-3">
+            <option value="">Loading tracks…</option>
+          </select>
+          <div class="text-center text-muted small mb-3">— or —</div>
+          <label class="form-label">Create New Track</label>
+          <input type="text" id="new-track-name" class="form-control mb-2" placeholder="e.g. Left shoulder mole">
+          <select id="new-track-region" class="form-select">
+            <option value="">Select body region…</option>
+            <option value="face">Face / Neck</option>
+            <option value="arm">Arm / Hand</option>
+            <option value="leg">Leg / Foot</option>
+            <option value="torso">Torso / Back</option>
+            <option value="scalp">Scalp</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="confirm-add-track-btn">
+          <i class="fa-solid fa-plus me-1"></i>Add to Track
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCAN DETAIL MODAL ═══ -->
+<div class="modal fade" id="scanDetailModal" tabindex="-1" aria-labelledby="scanDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="scanDetailModalLabel">Assessment Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="scan-detail-modal-body">
+        <!-- Injected by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" id="modal-download-pdf">
+          <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ VERDICT MODAL (Admin) ═══ -->
+<div class="modal fade" id="verdictModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-stethoscope text-teal me-2"></i>Patient Report &amp; Clinical Verdict</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="review-patient-report" class="mb-4" aria-live="polite"></div>
+        <div class="form-check mb-4">
+          <input type="checkbox" class="form-check-input" id="review-report-confirm" disabled>
+          <label class="form-check-label" for="review-report-confirm">I have reviewed this patient's assessment report.</label>
+        </div>
+        <fieldset id="review-verdict-fields" disabled>
+        <legend class="h6 fw-700 mb-3">Clinical Verdict</legend>
+        <input type="hidden" id="verdict-queue-id">
+        <div class="mb-3">
+          <label class="form-label">Dermatologist Diagnosis</label>
+          <input type="text" id="verdict-diagnosis" class="form-control" placeholder="e.g. Confirmed Melanoma">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Clinical Notes</label>
+          <textarea id="verdict-notes" class="form-control" rows="4" placeholder="Clinical observations…"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Verdict Category</label>
+          <select id="verdict-status" class="form-select">
+            <option value="reviewed">Reviewed — No Immediate Action</option>
+            <option value="confirmed">Confirmed — Matches AI Prediction</option>
+            <option value="corrected">Corrected — AI Was Incorrect</option>
+            <option value="urgent">Urgent — Immediate Referral Needed</option>
+          </select>
+        </div>
+        </fieldset>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" id="submit-verdict-btn" disabled>
+          <i class="fa-solid fa-floppy-disk me-2"></i>Save Verdict
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EDIT MEDICAL KNOWLEDGE MODAL (Admin) ═══ -->
+<div class="modal fade" id="editKnowledgeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-book-medical text-teal me-2"></i>Edit Medical Knowledge Entry</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-kb-form">
+          <input type="hidden" id="edit-kb-code">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Condition Code</label>
+              <input type="text" id="edit-kb-code-display" class="form-control" readonly style="background:var(--bg-muted);">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Condition Name</label>
+              <input type="text" id="edit-kb-name" class="form-control" readonly style="background:var(--bg-muted);">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Description</label>
+            <textarea id="edit-kb-desc" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Supportive Home Care (One recommendation per line)</label>
+            <textarea id="edit-kb-supportive" class="form-control" rows="4"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Preventive Measures (One measure per line)</label>
+            <textarea id="edit-kb-preventive" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Things to Avoid (One item per line)</label>
+            <textarea id="edit-kb-avoid" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">When to See a Dermatologist (One trigger per line)</label>
+            <textarea id="edit-kb-doctor" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Urgent Warning Signs (One sign per line)</label>
+            <textarea id="edit-kb-urgent" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Version</label>
+              <input type="text" id="edit-kb-version" class="form-control" value="1.0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Status</label>
+              <select id="edit-kb-status" class="form-select">
+                <option value="approved">Approved</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 btn-lg" id="save-kb-btn">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Save Medical Content Updates
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ADD MEDICAL KNOWLEDGE MODAL (Admin) ═══ -->
+<div class="modal fade" id="addKnowledgeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-plus text-teal me-2"></i>Add New Medical Condition Record</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="add-kb-form">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Condition Code <span class="text-danger">*</span></label>
+              <input type="text" id="add-kb-code" class="form-control" placeholder="e.g. mel, nv, bcc, ecz" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Condition Name <span class="text-danger">*</span></label>
+              <input type="text" id="add-kb-name" class="form-control" placeholder="e.g. Melanoma" required>
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Category</label>
+              <select id="add-kb-category" class="form-select">
+                <option value="Benign">Benign / Non-Cancerous</option>
+                <option value="Malignant">Malignant / Skin Cancer</option>
+                <option value="Pre-cancerous">Pre-cancerous / Actinic</option>
+                <option value="Inflammatory">Inflammatory</option>
+                <option value="General">General / Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Risk Level</label>
+              <select id="add-kb-risk" class="form-select">
+                <option value="Low">Low Risk</option>
+                <option value="Moderate">Moderate Risk</option>
+                <option value="High">High Risk</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Description</label>
+            <textarea id="add-kb-desc" class="form-control" rows="3" placeholder="Overview of the condition..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Supportive Home Care (One recommendation per line)</label>
+            <textarea id="add-kb-supportive" class="form-control" rows="3" placeholder="Apply gentle moisturizer daily..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Preventive Measures (One measure per line)</label>
+            <textarea id="add-kb-preventive" class="form-control" rows="3" placeholder="Use SPF 30+ broad-spectrum sunscreen..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Things to Avoid (One item per line)</label>
+            <textarea id="add-kb-avoid" class="form-control" rows="3" placeholder="Avoid picking or scratching..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">When to See a Dermatologist (One trigger per line)</label>
+            <textarea id="add-kb-doctor" class="form-control" rows="3" placeholder="Rapid enlargement or color shift..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Urgent Warning Signs (One sign per line)</label>
+            <textarea id="add-kb-urgent" class="form-control" rows="3" placeholder="Spontaneous bleeding or non-healing ulcer..."></textarea>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Version</label>
+              <input type="text" id="add-kb-version" class="form-control" value="1.0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Status</label>
+              <select id="add-kb-status" class="form-select">
+                <option value="approved">Approved</option>
+                <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 btn-lg" id="create-kb-submit-btn">
+            <i class="fa-solid fa-plus me-2"></i>Create Medical Record
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EDIT USER MODAL (Admin) ═══ -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fa-solid fa-user-pen text-teal me-2"></i>Edit User Account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-user-form">
+          <input type="hidden" id="edit-user-id">
+          <div class="mb-3">
+            <label class="form-label fw-600">Full Name</label>
+            <input type="text" id="edit-user-name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Email Address</label>
+            <input type="email" id="edit-user-email" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">System Role</label>
+            <select id="edit-user-role" class="form-select">
+              <option value="patient">Patient</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Account Status</label>
+            <select id="edit-user-disabled" class="form-select">
+              <option value="0">Active Account</option>
+              <option value="1">Disabled Account</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" id="save-user-submit-btn">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Save Account Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ JavaScript ═══ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/toast.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/sidebar.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/scanner.js"></script>
+<script src="/js/history.js"></script>
+<script src="/js/tracking.js"></script>
+<script src="/js/chatbot.js"></script>
+<script src="/js/education.js"></script>
+<script src="/js/profile.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

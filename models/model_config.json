@@ -1,0 +1,13 @@
+{
+  "model_name": "SkinSense-MobileNetV2-DermNet",
+  "architecture": "MobileNetV2",
+  "framework": "PyTorch 2.x",
+  "input_size": [224, 224],
+  "mean": [0.485, 0.456, 0.406],
+  "std": [0.229, 0.224, 0.225],
+  "num_classes": 9,
+  "confidence_threshold": 0.25,
+  "classes": ["akiec", "bcc", "bkl", "df", "mel", "nv", "vasc", "eczema", "psoriasis"],
+  "dataset": "HAM10000 + DermNet Labeled Clinical Dataset",
+  "version": "1.2.0"
+}

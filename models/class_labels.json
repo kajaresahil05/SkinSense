@@ -1,0 +1,134 @@
+{
+  "akiec": {
+    "name": "Actinic Keratosis",
+    "full_name": "Actinic Keratosis / Intraepithelial Carcinoma",
+    "category": "Precancerous Lesion",
+    "risk_level": "Moderate-High",
+    "description": "Rough, scaly patch on the skin caused by years of sun exposure. Can potentially progress to squamous cell carcinoma if untreated.",
+    "symptoms": [
+      "Rough scaly texture",
+      "Slight tenderness or burning",
+      "Pink, red, or brown patch"
+    ],
+    "recommendation": "Consult a dermatologist for clinical evaluation and cryotherapy, topical treatments, or biopsy if necessary."
+  },
+  "bcc": {
+    "name": "Basal Cell Carcinoma",
+    "full_name": "Basal Cell Carcinoma (BCC)",
+    "category": "Malignant Skin Neoplasm",
+    "risk_level": "High",
+    "description": "The most common form of skin cancer. Usually appears as a pearly bump, flesh-colored lesion, or bleeding sore that fails to heal.",
+    "symptoms": [
+      "Pearly or translucent bump",
+      "Central ulceration or bleeding",
+      "Rolled borders"
+    ],
+    "recommendation": "Prompt consultation with a dermatologist or surgical oncologist for diagnostic biopsy and excision planning."
+  },
+  "bkl": {
+    "name": "Benign Keratosis",
+    "full_name": "Seborrheic Keratosis / Solar Lentigo",
+    "category": "Benign Epidermal Growth",
+    "risk_level": "Low",
+    "description": "Non-cancerous skin growth that often appears stuck-on, waxy, tan, brown, or black. Very common with age.",
+    "symptoms": [
+      "Waxy or pasted-on appearance",
+      "Sharply demarcated edges",
+      "Tan, brown, or dark pigment"
+    ],
+    "recommendation": "Benign condition. Monitor for changes in color, size, or shape. Seek dermatologist confirmation if irritated."
+  },
+  "df": {
+    "name": "Dermatofibroma",
+    "full_name": "Dermatofibroma",
+    "category": "Benign Fibrous Lesion",
+    "risk_level": "Low",
+    "description": "Common benign skin papule or nodule, often occurring on lower legs. May show a dimple sign when pinched.",
+    "symptoms": [
+      "Firm reddish-brown bump",
+      "Pinch dimple sign",
+      "Asymptomatic or mild itching"
+    ],
+    "recommendation": "Generally harmless. No treatment required unless symptomatic or cosmetically inconvenient."
+  },
+  "mel": {
+    "name": "Melanoma",
+    "full_name": "Malignant Melanoma",
+    "category": "Malignant Melanocytic Neoplasm",
+    "risk_level": "Critical",
+    "description": "The most serious type of skin cancer. Arises in pigment-producing melanocytes. Characterized by asymmetry, irregular borders, color variation, diameter >6mm, and evolution (ABCDE rule).",
+    "symptoms": [
+      "Asymmetrical lesion",
+      "Irregular notched borders",
+      "Variegated colors (black, brown, blue, red)",
+      "Diameter > 6mm or rapid growth"
+    ],
+    "recommendation": "URGENT dermatologist consultation required. Demands dermatoscopic exam, excisional biopsy, and staging."
+  },
+  "nv": {
+    "name": "Melanocytic Nevus",
+    "full_name": "Melanocytic Nevus (Common Mole)",
+    "category": "Benign Melanocytic Lesion",
+    "risk_level": "Low",
+    "description": "Normal, common skin mole caused by clusters of melanocytes. Typically uniform in color and shape with smooth borders.",
+    "symptoms": [
+      "Even tan or dark brown color",
+      "Regular rounded shape",
+      "Stable size"
+    ],
+    "recommendation": "Normal benign skin feature. Routine self-monitoring using the ABCDE criteria is advised."
+  },
+  "vasc": {
+    "name": "Vascular Lesion",
+    "full_name": "Vascular Lesion (Cherry Angioma / Pyogenic Granuloma)",
+    "category": "Benign Vascular Growth",
+    "risk_level": "Low",
+    "description": "Skin growth made up of blood vessels. Ranges from small bright red cherry angiomas to elevated vascular nodules.",
+    "symptoms": [
+      "Bright red or purple macule/papule",
+      "Blanches under pressure",
+      "May bleed if irritated"
+    ],
+    "recommendation": "Usually benign. Consult a physician if bleeding frequently or changing rapidly."
+  },
+  "eczema": {
+    "name": "Eczema / Dermatitis",
+    "full_name": "Atopic Dermatitis / Inflammatory Eczema",
+    "category": "Inflammatory Dermatosis",
+    "risk_level": "Low-Moderate",
+    "description": "Inflammatory skin condition causing itchy, red, dry, and irritated patches. Frequently triggered by environmental factors or allergies.",
+    "symptoms": [
+      "Intense itching",
+      "Erythema and inflammation",
+      "Dry, cracked skin",
+      "Flaking"
+    ],
+    "recommendation": "Consult a physician or dermatologist for emollients, topical corticosteroids, and allergen identification."
+  },
+  "psoriasis": {
+    "name": "Psoriasis",
+    "full_name": "Plaque Psoriasis",
+    "category": "Autoimmune Inflammatory Dermatosis",
+    "risk_level": "Moderate",
+    "description": "Chronic autoimmune condition that speeds up the growth cycle of skin cells, leading to thick, silvery scales and red patches.",
+    "symptoms": [
+      "Thickened red skin plaques",
+      "Silvery scales",
+      "Itching or burning sensation"
+    ],
+    "recommendation": "Requires professional medical management including topical agents, phototherapy, or systemic therapy."
+  },
+  "scc": {
+    "name": "Squamous cell carcinoma",
+    "full_name": "Cutaneous Squamous Cell Carcinoma",
+    "category": "Malignant Skin Neoplasm",
+    "risk_level": "High",
+    "recommendation": "Seek prompt evaluation by a dermatologist."
+  },
+  "tinea": {
+    "name": "Tinea Ringworm Candidiasis",
+    "full_name": "Tinea Ringworm Candidiasis",
+    "category": "Fungal Skin Conditions",
+    "recommendation": "A healthcare professional can confirm the cause and advise on treatment."
+  }
+}

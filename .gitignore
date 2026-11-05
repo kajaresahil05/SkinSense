@@ -1,0 +1,107 @@
+# ==============================================================================
+# SkinSense — Intelligent Dermatological Assessment System .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Python Bytecode, Caches & Intermediate Files
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+
+# ------------------------------------------------------------------------------
+# 2. Virtual Environments
+# ------------------------------------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+build/
+dist/
+*.egg-info/
+
+# ------------------------------------------------------------------------------
+# 3. Environment Variables & Secret Credentials (NEVER COMMIT)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+secrets.json
+
+# ------------------------------------------------------------------------------
+# 4. Local SQLite Databases & State Files
+# ------------------------------------------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+database.db
+skinsense.db
+backend/database/skinsense.db
+
+# ------------------------------------------------------------------------------
+# 5. Runtime Uploads & Generated XAI Visualizations
+# ------------------------------------------------------------------------------
+uploads/*
+!uploads/.gitkeep
+!uploads/xai/
+uploads/xai/*
+!uploads/xai/.gitkeep
+
+# ------------------------------------------------------------------------------
+# 6. Runtime Logs & Process Outputs
+# ------------------------------------------------------------------------------
+*.log
+server.stdout.log
+server.stderr.log
+scratch_train.log
+
+# ------------------------------------------------------------------------------
+# 7. Temporary / Scratch Files & Ad-hoc Test Scripts
+# ------------------------------------------------------------------------------
+temp_test_skin.jpg
+test_sample.jpg
+temp_*
+scratch_*
+test_predictions.py
+test_predict_endpoint.py
+verify_registration_fix.py
+
+# ------------------------------------------------------------------------------
+# 8. Large Datasets & Archives (GitHub has a 100MB file limit)
+# ------------------------------------------------------------------------------
+# Raw 338MB image training dataset
+MILK10k_Training_Input/
+milk10k.zip
+*.zip
+*.tar.gz
+*.rar
+
+# Legacy / unused PyTorch model checkpoint (MobileNetV2 Keras in Dataset2 is used)
+models/*.pth
+
+# ------------------------------------------------------------------------------
+# 9. IDE, Editor & OS System Files
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+

@@ -1,0 +1,213 @@
+{
+  "dataset_info": {
+    "name": "HAM10000 + DermNet Clinical Holdout Test Benchmark",
+    "total_samples": 2111,
+    "evaluation_date": "2026-09-27",
+    "device": "PyTorch CPU/CUDA Benchmark Environment"
+  },
+  "overall_metrics": {
+    "accuracy": 0.8432,
+    "precision": 0.8383,
+    "recall": 0.8381,
+    "f1_score": 0.8381
+  },
+  "per_class_metrics": [
+    {
+      "code": "akiec",
+      "name": "Actinic Keratosis",
+      "support": 185,
+      "precision": 0.7978,
+      "recall": 0.7676,
+      "f1_score": 0.7824
+    },
+    {
+      "code": "bcc",
+      "name": "Basal Cell Carcinoma",
+      "support": 220,
+      "precision": 0.7911,
+      "recall": 0.8091,
+      "f1_score": 0.8
+    },
+    {
+      "code": "bkl",
+      "name": "Benign Keratosis",
+      "support": 290,
+      "precision": 0.8188,
+      "recall": 0.8103,
+      "f1_score": 0.8146
+    },
+    {
+      "code": "df",
+      "name": "Dermatofibroma",
+      "support": 110,
+      "precision": 0.8364,
+      "recall": 0.8364,
+      "f1_score": 0.8364
+    },
+    {
+      "code": "mel",
+      "name": "Melanoma",
+      "support": 270,
+      "precision": 0.8321,
+      "recall": 0.8074,
+      "f1_score": 0.8195
+    },
+    {
+      "code": "nv",
+      "name": "Melanocytic Nevus",
+      "support": 490,
+      "precision": 0.8947,
+      "recall": 0.902,
+      "f1_score": 0.8984
+    },
+    {
+      "code": "vasc",
+      "name": "Vascular Lesion",
+      "support": 126,
+      "precision": 0.8889,
+      "recall": 0.8889,
+      "f1_score": 0.8889
+    },
+    {
+      "code": "eczema",
+      "name": "Eczema / Dermatitis",
+      "support": 220,
+      "precision": 0.8222,
+      "recall": 0.8409,
+      "f1_score": 0.8315
+    },
+    {
+      "code": "psoriasis",
+      "name": "Psoriasis",
+      "support": 200,
+      "precision": 0.8627,
+      "recall": 0.88,
+      "f1_score": 0.8713
+    }
+  ],
+  "confusion_matrix": {
+    "labels": [
+      "akiec",
+      "bcc",
+      "bkl",
+      "df",
+      "mel",
+      "nv",
+      "vasc",
+      "eczema",
+      "psoriasis"
+    ],
+    "label_names": [
+      "Actinic Keratosis",
+      "Basal Cell Carcinoma",
+      "Benign Keratosis",
+      "Dermatofibroma",
+      "Melanoma",
+      "Melanocytic Nevus",
+      "Vascular Lesion",
+      "Eczema / Dermatitis",
+      "Psoriasis"
+    ],
+    "matrix": [
+      [
+        142,
+        12,
+        8,
+        3,
+        5,
+        4,
+        1,
+        6,
+        4
+      ],
+      [
+        9,
+        178,
+        7,
+        2,
+        11,
+        5,
+        2,
+        3,
+        3
+      ],
+      [
+        6,
+        8,
+        235,
+        5,
+        9,
+        14,
+        3,
+        8,
+        2
+      ],
+      [
+        2,
+        1,
+        4,
+        92,
+        3,
+        5,
+        2,
+        1,
+        0
+      ],
+      [
+        7,
+        14,
+        8,
+        2,
+        218,
+        12,
+        2,
+        4,
+        3
+      ],
+      [
+        4,
+        6,
+        12,
+        4,
+        9,
+        442,
+        3,
+        6,
+        4
+      ],
+      [
+        1,
+        2,
+        3,
+        1,
+        2,
+        3,
+        112,
+        2,
+        0
+      ],
+      [
+        4,
+        2,
+        7,
+        1,
+        3,
+        5,
+        1,
+        185,
+        12
+      ],
+      [
+        3,
+        2,
+        3,
+        0,
+        2,
+        4,
+        0,
+        10,
+        176
+      ]
+    ]
+  }
+}
